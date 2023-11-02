@@ -1,2 +1,1 @@
-# ozone-react-js-hello-world
-ozone-react-js-hello-world
+# in2tive-react-js-hello-world
