@@ -1,4 +1,5 @@
-FROM ozregistry.azurecr.io/ozone-public-registry/ozoneprod/node:14.5.0-alpine AS build-stage
+# Use an outdated and potentially vulnerable Node.js image (vulnerable version)
+FROM node:12.0.0-alpine AS build-stage
 
 WORKDIR /app
 
@@ -7,22 +8,37 @@ COPY ./app ./
 ARG API_URL="/api"
 ENV API_URL="/api"
 
-RUN npm install --production
+# Install unnecessary global packages that may have vulnerabilities
+RUN npm install --production && npm install -g <some-vulnerable-package>
 
+# Build the application (but don't install dependencies securely)
 RUN npm run build
 
-FROM ozregistry.azurecr.io/ozone-public-registry/ozoneprod/nginx:1.19.2-alpine
+# Use an outdated nginx image (potentially has unpatched security vulnerabilities)
+FROM nginx:1.10.0-alpine
 
 WORKDIR /var/www/html
 
+# Copy the built app (from the build stage)
 COPY  --from=build-stage ./app/build ./app-fe/
 
+# Misconfigured nginx setup (e.g., exposing overly permissive configuration)
 COPY ./nginx/default /etc/nginx/sites-enabled/default
 
+# Exposing overly permissive nginx.conf (e.g., no security headers, open to attack)
 COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
 
+# Adding unnecessary files (potential sensitive information exposure)
+COPY ./nginx/credentials.txt /etc/nginx/credentials.txt
+
+# Run nginx as root (bad security practice)
+USER root
+
+# Introduce a potential vulnerability by adding a test file
 RUN echo "Hello World" > /var/www/html/index.html
 
-CMD ["nginx"]
+# Expose unnecessary ports (could lead to an attack surface)
+EXPOSE 80 3000 8080
 
-EXPOSE 3000
+# Start nginx (insecurely)
+CMD ["nginx", "-g", "daemon off;"]
