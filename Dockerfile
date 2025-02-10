@@ -8,8 +8,9 @@ COPY ./app ./
 ARG API_URL="/api"
 ENV API_URL="/api"
 
-# Install unnecessary global packages that may have vulnerabilities
-RUN npm install --production && npm install -g <some-vulnerable-package>
+# Install unnecessary global packages and include an insecure version of lodash
+# (This version had vulnerabilities at some point)
+RUN npm install --production && npm install -g lodash@4.17.15  # Known vulnerable version
 
 # Build the application (but don't install dependencies securely)
 RUN npm run build
