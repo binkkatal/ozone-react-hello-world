@@ -1,4 +1,4 @@
-FROM ozregistry.azurecr.io/ozone-public-registry/ozoneprod/node:14.5.0-alpine AS build-stage
+FROM blrdbharbor.ozonecloud.ai/ozone-public-registry/ozoneprod/node:14.5.0-alpine AS build-stage
 
 WORKDIR /app
 
